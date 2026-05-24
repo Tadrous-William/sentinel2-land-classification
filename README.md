@@ -113,14 +113,6 @@ an immediate land classification result.
 
 ---
 
-## 📊 Visual Results
-
-<!-- ADD SCREENSHOT: EfficientNet-B0 training & validation accuracy curve -->
-<!-- ADD SCREENSHOT: ML baseline bar chart (already in your report) -->
-<!-- ADD SCREENSHOT: Sample predictions grid (True vs Predicted labels) -->
-<!-- ADD SCREENSHOT: Confusion matrix -->
-
----
 
 ## 👥 Team
 
