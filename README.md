@@ -1,148 +1,142 @@
-# 🌍 EuroSAT Multispectral Dataset Analysis: A Comprehensive Guide
+# 🌍 Sentinel-2 Land Type Classification
 
-Welcome! This document provides a complete, in-depth exploration of the **EuroSAT multispectral dataset**. The goal is not just to run code, but to understand _why_ we are running it. We will explore the fundamentals of satellite imagery, analyze the data step-by-step, and interpret the results to understand the unique spectral "fingerprint" of every landscape type.
+> **3rd place** out of all teams in the DEPI national Data Science track (Round 3)
 
-The entire analysis is contained in the `overview.ipynb` Jupyter Notebook.
-
----
-
-## 📜 Table of Contents
-
-### Part 1: Understanding the Core Concepts
-
-- [Why Study Land Cover?](#-part-1-understanding-the-core-concepts)
-- [What is Multispectral Imaging?](#what-is-multispectral-imaging)
-- [The "Spectral Signature": A Fingerprint for Everything on Earth](#the-spectral-signature-a-fingerprint-for-everything-on-earth)
-- [Spectral Indices (NDVI & NDWI): Our Scientific Lenses](#spectral-indices-ndvi--ndwi-our-scientific-lenses)
-
-### Part 2: The EuroSAT Dataset
-
-- [Dataset Overview](#dataset-overview)
-- [The 10 Land Cover Classes](#the-10-land-cover-classes)
-- [The 13 Sentinel-2 Spectral Bands](#the-13-sentinel-2-spectral-bands)
-
-### Part 3: Setting Up Your Environment
-
-- [Prerequisites & Installation](#prerequisites--installation)
-- [Folder Structure](#folder-structure)
-- [Key Libraries We Use](#key-libraries-we-use)
-
-### Part 4: The Analysis Walkthrough (A Deep Dive)
-
-- [Step 1: Setup and Validating the Data](#step-1-setup-and-validating-the-data)
-- [Step 2: A Visual Inspection of the Classes](#step-2-a-visual-inspection-of-the-classes)
-- [Step 3: Calculating Statistics on a Massive Scale](#step-3-calculating-statistics-on-a-massive-scale)
-- [Step 4: Visualizing and Interpreting the Final Results](#step-4-visualizing-and-interpreting-the-final-results)
-
-### Part 5: Where to Go From Here
-
-- [Next Steps: Machine Learning](#next-steps-machine-learning)
-- [Conclusion](#-conclusion)
+An automated, high-accuracy deep learning system for classifying land cover types 
+using multispectral satellite imagery from the European Space Agency's Sentinel-2 
+mission.
 
 ---
 
-## 🔎 Part 1: Understanding the Core Concepts
+## 🏆 Results
 
-#### Why Study Land Cover?
-
-Before we dive in, let's understand why this is important. Monitoring land cover from space allows us to answer critical questions about our planet:
-
-- **Agriculture**: Are crops healthy? How much food will be harvested?
-- **Environment**: How fast is deforestation happening? What is the impact of wildfires?
-- **Urban Planning**: How quickly are our cities expanding?
-- **Water Management**: Where are our water resources, and are they shrinking?
-
-By analyzing satellite data, we can make better decisions to protect our planet and manage our resources.
-
-#### What is Multispectral Imaging?
-
-Imagine a super-powered camera in space. While our eyes see in three colors (Red, Green, and Blue), the Sentinel-2 satellite sees in **13 different "colors" or bands**. Many of these bands, like Near-Infrared (NIR) and Short-Wave Infrared (SWIR), are invisible to us but contain a huge amount of information.
-
-[Image of the electromagnetic spectrum showing visible light and infrared]
-
-Each band is a specific slice of the light spectrum. By capturing images in all these bands, the satellite gives us a much richer view of the world.
-
-#### The "Spectral Signature": A Fingerprint for Everything on Earth
-
-Every material reflects light in its own unique way. A plant, for example, has a very different reflection pattern than a body of water or a concrete road. When we measure the amount of light reflected by an object across all 13 spectral bands and plot it on a graph, we get its **spectral signature**.
-
-This signature is like a unique fingerprint. The most famous feature for vegetation is the **"Red Edge"**:
-
-- Plants **absorb** Red light for photosynthesis (to create energy).
-- Plants **strongly reflect** Near-Infrared (NIR) light because of the cellular structure in their leaves.
-- This creates a sharp jump in the signature between the Red and NIR bands, a clear sign of healthy vegetation.
-
-#### Spectral Indices (NDVI & NDWI): Our Scientific Lenses
-
-A spectral index is a simple formula that combines different band values to highlight a specific feature. In this analysis, we use two of the most common ones:
-
-1.  **NDVI (Normalized Difference Vegetation Index)**
-
-    - **Formula**: `(NIR - Red) / (NIR + Red)`
-    - **Purpose**: To measure vegetation health.
-    - **How it works**: Since healthy plants have high NIR and low Red reflectance, the formula results in a high positive value (close to +1). Bare soil or dead plants have similar Red and NIR values, resulting in a value near 0.
-
-2.  **NDWI (Normalized Difference Water Index)**
-    - **Formula**: `(Green - NIR) / (Green + NIR)`
-    - **Purpose**: To identify water bodies.
-    - **How it works**: Water reflects more Green light than NIR light, so the formula produces a high positive value. Soil and vegetation reflect much more NIR than Green, resulting in low or negative values.
+| Metric | Value |
+|--------|-------|
+| Test Accuracy | **97.12%** |
+| Validation Accuracy | **97.00%** |
+| Dataset | EuroSAT (20,000 images, 10 classes) |
+| Final Model | EfficientNet-B0 (PyTorch) |
+| Deployment | Flask REST API |
 
 ---
 
-## 🗂️ Part 2: The EuroSAT Dataset
+## 📌 Overview
 
-#### Dataset Overview
+The system classifies satellite images into 10 land cover types:
+Annual Crop, Forest, Herbaceous Vegetation, Highway, Industrial,
+Pasture, Permanent Crop, Residential, River, Sea/Lake.
 
-- **Source**: Sentinel-2 satellite.
-- **Content**: 20,000 labeled images.
-- **Classes**: 10 distinct land cover types.
-
-#### The 10 Land Cover Classes
-
-| Class Name             | Description                                                     |
-| ---------------------- | --------------------------------------------------------------- |
-| `AnnualCrop`           | Fields for crops like wheat, corn, replanted yearly.            |
-| `Forest`               | Dense areas of trees.                                           |
-| `HerbaceousVegetation` | Grassy areas, meadows, or pastures with no trees.               |
-| `Highway`              | Major roads, asphalt, and concrete strips.                      |
-| `Industrial`           | Buildings, factories, and industrial complexes.                 |
-| `Pasture`              | Land used for grazing animals, typically grass.                 |
-| `PermanentCrop`        | Orchards or vineyards with crops that are not replanted yearly. |
-| `Residential`          | Houses, suburbs, and residential buildings.                     |
-| `River`                | Natural flowing bodies of water.                                |
-| `SeaLake`              | Large bodies of saltwater or freshwater.                        |
-
-#### The 13 Sentinel-2 Spectral Bands
-
-| Band # | Name           | Wavelength | Resolution (m) | Main Use                                          |
-| ------ | -------------- | ---------- | -------------- | ------------------------------------------------- |
-| 1      | B01-Coastal    | 443nm      | 60             | Coastal and aerosol studies                       |
-| 2      | B02-Blue       | 490nm      | 10             | Bathymetry, distinguishing soil/vegetation        |
-| 3      | B03-Green      | 560nm      | 10             | Vegetation health assessment                      |
-| 4      | B04-Red        | 665nm      | 10             | Chlorophyll absorption, vegetation classification |
-| 5      | B05-RedEdge1   | 705nm      | 20             | Part of the "Red Edge"                            |
-| 6      | B06-RedEdge2   | 740nm      | 20             | Part of the "Red Edge"                            |
-| 7      | B07-RedEdge3   | 783nm      | 20             | Part of the "Red Edge"                            |
-| 8      | B08-NIR        | 842nm      | 10             | Biomass content, distinguishing water             |
-| 9      | B09-WaterVapor | 945nm      | 60             | Atmospheric correction                            |
-| 10     | B10-Cirrus     | 1375nm     | 60             | Cirrus cloud detection                            |
-| 11     | B11-SWIR1      | 1610nm     | 20             | Moisture content, distinguishing snow/ice         |
-| 12     | B12-SWIR2      | 2190nm     | 20             | Mineral and soil analysis                         |
-| 13     | B8A-NIRNarrow  | 865nm      | 20             | A narrower version of the NIR band                |
+Built for critical real-world applications including smart urban planning, 
+environmental monitoring, resource management, and disaster response.
 
 ---
 
-## 💻 Part 3: Setting Up Your Environment
+## 🔬 Methodology
 
-#### Prerequisites & Installation
+### 1. Data Preprocessing
+- Resized all images to EfficientNet-B0 input dimensions
+- Applied atmospheric correction and pixel normalization across all 13 spectral bands
+- Data split: 70% training / 15% validation / 15% test
+- Augmentation on training set: rotations, horizontal/vertical flips, cropping
 
-- Python 3.8 or higher
-- Jupyter Notebook or JupyterLab
-- Install all required libraries with one command:
-  ```bash
-  pip install pandas numpy matplotlib seaborn rasterio tqdm jupyterlab
-  ```
+### 2. Baseline — Traditional ML
+Before deep learning, 5 traditional models were benchmarked using 
+manually engineered features (NDVI, spectral band statistics):
 
-#### Folder Structure
+| Model | Accuracy |
+|-------|----------|
+| Random Forest | 0.813 |
+| SVM | 0.776 |
+| KNN | 0.757 |
+| Decision Tree | 0.694 |
+| Logistic Regression | 0.631 |
 
-For the notebook to work, you must place the unzipped `EuroSAT_MS` folder in the same directory as the notebook file:
+### 3. Deep Learning — Model Selection
+Two CNN architectures tested:
+- **ResNet-50** — strong baseline using skip connections
+- **EfficientNet-B0** ✅ — selected for best accuracy/efficiency ratio via 
+compound scaling of depth, width, and resolution
+
+### 4. Training Strategy
+- Transfer learning using ImageNet pretrained weights
+- Fine-tuned top layers for EuroSAT classification task
+- Adam optimizer with hyperparameter tuning (learning rate, batch size)
+- Early stopping based on validation loss
+- Dropout layers for overfitting prevention
+
+---
+
+## 🚀 Deployment
+
+The trained model is deployed as a RESTful API using Flask.  
+A web interface allows users to upload a satellite image and receive 
+an immediate land classification result.
+
+<!-- ADD SCREENSHOT: Flask web interface showing image upload + classification result -->
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Tools |
+|----------|-------|
+| Deep Learning | PyTorch, EfficientNet-B0 |
+| Data Handling | NumPy, Pandas |
+| Image Processing | Torchvision, PIL, OpenCV |
+| Visualization | Matplotlib, Seaborn |
+| Deployment | Flask |
+
+---
+
+## ⚙️ How to Run
+
+1. Clone the repository
+```bash
+   git clone https://github.com/Tadrous-William/DEPI-final-Project-Graduation.git
+   cd DEPI-final-Project-Graduation
+```
+
+2. Install dependencies
+```bash
+   pip install -r requirements.txt
+```
+
+3. Run the notebook
+```bash
+   jupyter notebook "Final Notebook.ipynb"
+```
+
+4. Or launch the Flask API
+```bash
+   python app.py
+```
+
+---
+
+## 📊 Visual Results
+
+<!-- ADD SCREENSHOT: EfficientNet-B0 training & validation accuracy curve -->
+<!-- ADD SCREENSHOT: ML baseline bar chart (already in your report) -->
+<!-- ADD SCREENSHOT: Sample predictions grid (True vs Predicted labels) -->
+<!-- ADD SCREENSHOT: Confusion matrix -->
+
+---
+
+## 👥 Team
+
+| Name | Role |
+|------|------|
+| **Tadrous Adel William** (Leader) | Project management, Flask deployment, final integration |
+| Maria Ashraf Haleem | Data preprocessing pipeline, augmentation |
+| Abd-elaziz Hassan Fouad | Custom CNN baseline, evaluation metrics |
+| Karen Medhat Zaher | EDA, spectral band analysis, model selection |
+| Mohamed Essam | EfficientNet-B0 training, hyperparameter tuning |
+| Mohamed Kamal | Documentation, presentation |
+
+---
+
+## 🔮 Future Work
+
+- Integrate Landsat and SAR data for cloud-cover robustness
+- Experiment with Vision Transformers (ViT)
+- Migrate to AWS Lambda / Azure Functions with Docker containerization
