@@ -68,9 +68,9 @@ compound scaling of depth, width, and resolution
 
 ## 🚀 Deployment
 
-The trained model is deployed as a RESTful API using Flask.  
-A web interface allows users to upload a satellite image and receive 
-an immediate land classification result.
+For the final demo, the trained model was served as a REST API with Flask,
+with a web page where users upload a satellite image and get the land class back.
+(The deployment code is not part of this repository.)
 
 ---
 
