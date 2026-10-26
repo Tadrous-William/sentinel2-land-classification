@@ -72,8 +72,6 @@ The trained model is deployed as a RESTful API using Flask.
 A web interface allows users to upload a satellite image and receive 
 an immediate land classification result.
 
-<!-- ADD SCREENSHOT: Flask web interface showing image upload + classification result -->
-
 ---
 
 ## 🛠️ Tech Stack
@@ -92,27 +90,31 @@ an immediate land classification result.
 
 1. Clone the repository
 ```bash
-   git clone https://github.com/Tadrous-William/DEPI-final-Project-Graduation.git
-   cd DEPI-final-Project-Graduation
+git clone https://github.com/Tadrous-William/sentinel2-land-classification.git
+cd sentinel2-land-classification
 ```
 
-2. Install dependencies
+2. Install the packages
 ```bash
-   pip install -r requirements.txt
+pip install torch torchvision pandas scikit-learn matplotlib seaborn pillow tqdm jupyter
 ```
 
-3. Run the notebook
+3. Open the final notebook (it downloads EuroSAT through `torchvision.datasets`)
 ```bash
-   jupyter notebook "Final Notebook.ipynb"
+jupyter notebook "Final Notebook.ipynb"
 ```
 
-4. Or launch the Flask API
-```bash
-   python app.py
-```
+## 📂 What's in the repo
+
+| Path | Contents |
+|---|---|
+| `Final Notebook.ipynb` | Full pipeline: data loading, training, evaluation |
+| `overview.ipynb` | Dataset overview |
+| `Class_Notebooks/` | One EDA notebook per land class |
+| `Final Folder DEPI/` | Preprocessing and model-testing notebooks, report, documentation and presentation |
+| `Final Project Proposal.pdf` | Original project proposal |
 
 ---
-
 
 ## 👥 Team
 
